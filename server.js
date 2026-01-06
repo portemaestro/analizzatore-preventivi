@@ -705,6 +705,38 @@ Restituisci SOLO un JSON valido con:
     const counter = incrementCounter();
     console.log('📈 Preventivi analizzati totali:', counter.count);
 
+    // Salva nel database (chiamata asincrona, non blocca la risposta)
+    try {
+      const dbData = {
+        provincia: userContext.provincia || null,
+        abitazione: userContext.abitazione || null,
+        esposizione: userContext.esposizione || null,
+        sicurezza_richiesta: userContext.sicurezza_richiesta || null,
+        brand: verifiedData.brand || null,
+        model: verifiedData.model || null,
+        security_class: verifiedData.security_class || null,
+        lock_type: verifiedData.lock_type || null,
+        cylinder: verifiedData.cylinder || null,
+        defender: verifiedData.defender || null,
+        price: verifiedData.price || null,
+        punteggio: analysisResult.db_record?.punteggio_conformita || null
+      };
+      
+      fetch('https://www.guidaporteblindate.it/api-salva-preventivo.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Api-Key': 'GPB_2026_SecretKey_Osservatorio'
+        },
+        body: JSON.stringify(dbData)
+      })
+      .then(resp => resp.json())
+      .then(result => console.log('💾 Salvato nel DB:', result))
+      .catch(err => console.error('⚠️ Errore salvataggio DB:', err.message));
+    } catch (dbError) {
+      console.error('⚠️ Errore preparazione dati DB:', dbError.message);
+    }
+
     res.json(analysisResult);
 
   } catch (error) {
