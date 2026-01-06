@@ -142,7 +142,7 @@
                 <div class="progress-text" id="progressText">Passo 1 di 7</div>
             </div>
             <div id="wizardContainer">
-                <!-- Step 1: Abitazione -->
+                <!-- Step 1: Abitazione e Provincia -->
                 <div class="step active" data-step="1">
                     <h2>Dove verrà installata la porta?</h2>
                     <p>Questo influenza i materiali e il livello di sicurezza consigliato.</p>
@@ -153,6 +153,126 @@
                         <div class="option-card" data-value="villa" onclick="selectOption(this, 'abitazione')">
                             <div class="icon">🏠</div><h4>Villa / Casa Indipendente</h4><p>Ingresso diretto dall'esterno</p>
                         </div>
+                    </div>
+                    
+                    <!-- Campo Provincia -->
+                    <div class="provincia-section" style="margin-top: 30px; padding-top: 25px; border-top: 1px solid #e2e8f0;">
+                        <label for="provinciaSelect" style="display: block; font-weight: 600; margin-bottom: 10px; color: #1a365d;">
+                            📍 In quale provincia verrà installata?
+                        </label>
+                        <select id="provinciaSelect" onchange="state.provincia = this.value" style="width: 100%; max-width: 400px; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; background: white; cursor: pointer;">
+                            <option value="">-- Seleziona la provincia --</option>
+                            <option value="AG">Agrigento (AG)</option>
+                            <option value="AL">Alessandria (AL)</option>
+                            <option value="AN">Ancona (AN)</option>
+                            <option value="AO">Aosta (AO)</option>
+                            <option value="AR">Arezzo (AR)</option>
+                            <option value="AP">Ascoli Piceno (AP)</option>
+                            <option value="AT">Asti (AT)</option>
+                            <option value="AV">Avellino (AV)</option>
+                            <option value="BA">Bari (BA)</option>
+                            <option value="BT">Barletta-Andria-Trani (BT)</option>
+                            <option value="BL">Belluno (BL)</option>
+                            <option value="BN">Benevento (BN)</option>
+                            <option value="BG">Bergamo (BG)</option>
+                            <option value="BI">Biella (BI)</option>
+                            <option value="BO">Bologna (BO)</option>
+                            <option value="BZ">Bolzano (BZ)</option>
+                            <option value="BS">Brescia (BS)</option>
+                            <option value="BR">Brindisi (BR)</option>
+                            <option value="CA">Cagliari (CA)</option>
+                            <option value="CL">Caltanissetta (CL)</option>
+                            <option value="CB">Campobasso (CB)</option>
+                            <option value="CE">Caserta (CE)</option>
+                            <option value="CT">Catania (CT)</option>
+                            <option value="CZ">Catanzaro (CZ)</option>
+                            <option value="CH">Chieti (CH)</option>
+                            <option value="CO">Como (CO)</option>
+                            <option value="CS">Cosenza (CS)</option>
+                            <option value="CR">Cremona (CR)</option>
+                            <option value="KR">Crotone (KR)</option>
+                            <option value="CN">Cuneo (CN)</option>
+                            <option value="EN">Enna (EN)</option>
+                            <option value="FM">Fermo (FM)</option>
+                            <option value="FE">Ferrara (FE)</option>
+                            <option value="FI">Firenze (FI)</option>
+                            <option value="FG">Foggia (FG)</option>
+                            <option value="FC">Forlì-Cesena (FC)</option>
+                            <option value="FR">Frosinone (FR)</option>
+                            <option value="GE">Genova (GE)</option>
+                            <option value="GO">Gorizia (GO)</option>
+                            <option value="GR">Grosseto (GR)</option>
+                            <option value="IM">Imperia (IM)</option>
+                            <option value="IS">Isernia (IS)</option>
+                            <option value="SP">La Spezia (SP)</option>
+                            <option value="AQ">L'Aquila (AQ)</option>
+                            <option value="LT">Latina (LT)</option>
+                            <option value="LE">Lecce (LE)</option>
+                            <option value="LC">Lecco (LC)</option>
+                            <option value="LI">Livorno (LI)</option>
+                            <option value="LO">Lodi (LO)</option>
+                            <option value="LU">Lucca (LU)</option>
+                            <option value="MC">Macerata (MC)</option>
+                            <option value="MN">Mantova (MN)</option>
+                            <option value="MS">Massa-Carrara (MS)</option>
+                            <option value="MT">Matera (MT)</option>
+                            <option value="ME">Messina (ME)</option>
+                            <option value="MI">Milano (MI)</option>
+                            <option value="MO">Modena (MO)</option>
+                            <option value="MB">Monza e Brianza (MB)</option>
+                            <option value="NA">Napoli (NA)</option>
+                            <option value="NO">Novara (NO)</option>
+                            <option value="NU">Nuoro (NU)</option>
+                            <option value="OR">Oristano (OR)</option>
+                            <option value="PD">Padova (PD)</option>
+                            <option value="PA">Palermo (PA)</option>
+                            <option value="PR">Parma (PR)</option>
+                            <option value="PV">Pavia (PV)</option>
+                            <option value="PG">Perugia (PG)</option>
+                            <option value="PU">Pesaro e Urbino (PU)</option>
+                            <option value="PE">Pescara (PE)</option>
+                            <option value="PC">Piacenza (PC)</option>
+                            <option value="PI">Pisa (PI)</option>
+                            <option value="PT">Pistoia (PT)</option>
+                            <option value="PN">Pordenone (PN)</option>
+                            <option value="PZ">Potenza (PZ)</option>
+                            <option value="PO">Prato (PO)</option>
+                            <option value="RG">Ragusa (RG)</option>
+                            <option value="RA">Ravenna (RA)</option>
+                            <option value="RC">Reggio Calabria (RC)</option>
+                            <option value="RE">Reggio Emilia (RE)</option>
+                            <option value="RI">Rieti (RI)</option>
+                            <option value="RN">Rimini (RN)</option>
+                            <option value="RM">Roma (RM)</option>
+                            <option value="RO">Rovigo (RO)</option>
+                            <option value="SA">Salerno (SA)</option>
+                            <option value="SS">Sassari (SS)</option>
+                            <option value="SV">Savona (SV)</option>
+                            <option value="SI">Siena (SI)</option>
+                            <option value="SR">Siracusa (SR)</option>
+                            <option value="SO">Sondrio (SO)</option>
+                            <option value="SU">Sud Sardegna (SU)</option>
+                            <option value="TA">Taranto (TA)</option>
+                            <option value="TE">Teramo (TE)</option>
+                            <option value="TR">Terni (TR)</option>
+                            <option value="TO">Torino (TO)</option>
+                            <option value="TP">Trapani (TP)</option>
+                            <option value="TN">Trento (TN)</option>
+                            <option value="TV">Treviso (TV)</option>
+                            <option value="TS">Trieste (TS)</option>
+                            <option value="UD">Udine (UD)</option>
+                            <option value="VA">Varese (VA)</option>
+                            <option value="VE">Venezia (VE)</option>
+                            <option value="VB">Verbano-Cusio-Ossola (VB)</option>
+                            <option value="VC">Vercelli (VC)</option>
+                            <option value="VR">Verona (VR)</option>
+                            <option value="VV">Vibo Valentia (VV)</option>
+                            <option value="VI">Vicenza (VI)</option>
+                            <option value="VT">Viterbo (VT)</option>
+                        </select>
+                        <p style="margin-top: 10px; font-size: 13px; color: #718096;">
+                            🔒 <em>Raccogliamo questo dato solo a fini statistici e per migliorare l'analisi del preventivo relativamente ai costi di mercato nella tua zona. Non verrà condiviso con terzi.</em>
+                        </p>
                     </div>
                 </div>
                 
@@ -371,6 +491,7 @@
         const state = { 
             abitazione: null, 
             esposizione: null, 
+            provincia: null,
             sicurezza_richiesta: null, 
             rumore: null, 
             spifferi: null, 
@@ -453,6 +574,7 @@
         async function nextStep() {
             // Validazioni
             if (currentStep === 1 && !state.abitazione) { alert('Seleziona dove verrà installata la porta'); return; }
+            if (currentStep === 1 && !state.provincia) { alert('Seleziona la provincia di installazione'); return; }
             if (currentStep === 2 && state.abitazione === 'villa' && !state.esposizione) { alert('Seleziona il tipo di esposizione'); return; }
             if (currentStep === 3 && !state.sicurezza_richiesta) { alert('Seleziona il livello di sicurezza desiderato'); return; }
             if (currentStep === 4 && (state.rumore === null || state.spifferi === null || state.bonus_fiscali === null)) { alert('Rispondi a tutte le domande sul comfort'); return; }
@@ -834,6 +956,7 @@
             let html = '<div style="background:#f8f9fa;padding:20px;border-radius:12px;margin-bottom:20px;">';
             html += '<h4 style="margin-bottom:15px;">📋 Le tue esigenze</h4>';
             html += `<p><strong>Abitazione:</strong> ${labels.abitazione[state.abitazione]}</p>`;
+            html += `<p><strong>Provincia:</strong> ${state.provincia}</p>`;
             if (state.abitazione === 'villa') html += `<p><strong>Esposizione:</strong> ${labels.esposizione[state.esposizione]}</p>`;
             html += `<p><strong>Sicurezza:</strong> ${labels.sicurezza_richiesta[state.sicurezza_richiesta]}</p>`;
             html += `<p><strong>Rumore:</strong> ${state.rumore ? 'Sì' : 'No'} | <strong>Spifferi:</strong> ${state.spifferi ? 'Sì' : 'No'} | <strong>Bonus:</strong> ${state.bonus_fiscali ? 'Sì' : 'No'}</p>`;
@@ -899,6 +1022,7 @@
                 formData.append('userContext', JSON.stringify({
                     abitazione: state.abitazione,
                     esposizione: state.esposizione,
+                    provincia: state.provincia,
                     sicurezza_richiesta: state.sicurezza_richiesta,
                     rumore: state.rumore,
                     spifferi: state.spifferi,
