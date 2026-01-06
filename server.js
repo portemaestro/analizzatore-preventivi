@@ -653,7 +653,7 @@ app.post('/api/analizza', uploadMultipleAnalisi, async (req, res) => {
     console.log('📥 Richiesta ANALISI FINALE ricevuta');
     
     // ============================================
-    // VERIFICA RATE LIMIT
+    // VERIFICA RATE LIMIT (10 analisi/giorno per IP)
     // ============================================
     const clientIP = getClientIP(req);
     const rateCheck = checkRateLimit(clientIP);
@@ -667,28 +667,6 @@ app.post('/api/analizza', uploadMultipleAnalisi, async (req, res) => {
       });
     }
     console.log(`✅ Rate limit OK - Analisi rimanenti oggi: ${rateCheck.remaining}`);
-    
-    // ============================================
-    // VERIFICA reCAPTCHA v3
-    // ============================================
-    const recaptchaToken = req.body.recaptchaToken;
-    if (!recaptchaToken) {
-      console.log('⚠️ Token reCAPTCHA mancante');
-      return res.status(400).json({ 
-        error: 'Verifica di sicurezza fallita', 
-        message: 'Token reCAPTCHA mancante. Ricarica la pagina e riprova.'
-      });
-    }
-    
-    const isHuman = await verifyRecaptcha(recaptchaToken);
-    if (!isHuman) {
-      console.log('🤖 Rilevato possibile bot - IP:', clientIP);
-      return res.status(403).json({ 
-        error: 'Verifica di sicurezza fallita', 
-        message: 'Non è stato possibile verificare che sei un utente umano. Riprova.'
-      });
-    }
-    console.log('✅ reCAPTCHA verificato - Utente umano confermato');
     
     const isMultiple = req.body.isMultiple === 'true';
     let files = [];
