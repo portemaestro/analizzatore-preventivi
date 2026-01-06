@@ -135,9 +135,6 @@
             <div class="header">
                 <h1>🔍 Analizzatore Preventivi</h1>
                 <p>Carica il tuo preventivo e scopri se è adatto alle tue esigenze</p>
-                <div class="counter-badge" id="counterBadge" style="display: none;">
-                    📊 <span id="counterNumber">0</span> preventivi analizzati dal <span id="counterSince">06/01/2026</span>
-                </div>
             </div>
             <div class="progress-container">
                 <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
@@ -1240,20 +1237,6 @@
         
         // Init
         showStep(1);
-        
-        // Carica contatore preventivi
-        async function loadCounter() {
-            try {
-                const response = await fetch('/api/counter');
-                const data = await response.json();
-                document.getElementById('counterNumber').textContent = data.count;
-                document.getElementById('counterSince').textContent = data.since;
-                document.getElementById('counterBadge').style.display = 'inline-block';
-            } catch (e) {
-                console.log('Contatore non disponibile');
-            }
-        }
-        loadCounter();
     </script>
 </body>
 </html>
