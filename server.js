@@ -1,6 +1,6 @@
 // ============================================
 // ANALIZZATORE PREVENTIVI - Backend Server
-// GuidaPorteBlindate.it - v1.3 (Database Porte Blindate)
+// GuidaPorteBlindate.it - v1.4 (Con reCAPTCHA e Rate Limiting)
 // ============================================
 
 require('dotenv').config();
@@ -13,6 +13,105 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ============================================
+// CONFIGURAZIONE reCAPTCHA v3
+// ============================================
+const RECAPTCHA_SECRET_KEY = '6LeuN0IsAAAAAF0ki9Z6RuwpJ04W0iEj5Tk5DlJx';
+
+async function verifyRecaptcha(token) {
+  try {
+    const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `secret=${RECAPTCHA_SECRET_KEY}&response=${token}`
+    });
+    const data = await response.json();
+    console.log('🔐 reCAPTCHA score:', data.score, '| success:', data.success);
+    // Score > 0.5 è considerato umano (0.0 = bot, 1.0 = umano)
+    return data.success && data.score >= 0.5;
+  } catch (error) {
+    console.error('❌ Errore verifica reCAPTCHA:', error);
+    return false;
+  }
+}
+
+// ============================================
+// RATE LIMITING (10 analisi per IP in 24 ore)
+// ============================================
+const RATE_LIMIT_FILE = './rate_limits.json';
+const MAX_REQUESTS_PER_DAY = 10;
+const RATE_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 ore
+
+function getRateLimits() {
+  try {
+    if (fs.existsSync(RATE_LIMIT_FILE)) {
+      return JSON.parse(fs.readFileSync(RATE_LIMIT_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Errore lettura rate limits:', e);
+  }
+  return {};
+}
+
+function saveRateLimits(limits) {
+  try {
+    fs.writeFileSync(RATE_LIMIT_FILE, JSON.stringify(limits, null, 2));
+  } catch (e) {
+    console.error('Errore salvataggio rate limits:', e);
+  }
+}
+
+function checkRateLimit(ip) {
+  const limits = getRateLimits();
+  const now = Date.now();
+  
+  // Pulisci vecchi record (più vecchi di 24 ore)
+  for (const key in limits) {
+    if (now - limits[key].firstRequest > RATE_LIMIT_WINDOW_MS) {
+      delete limits[key];
+    }
+  }
+  
+  if (!limits[ip]) {
+    limits[ip] = { count: 0, firstRequest: now };
+  }
+  
+  const userLimit = limits[ip];
+  
+  // Resetta se sono passate 24 ore
+  if (now - userLimit.firstRequest > RATE_LIMIT_WINDOW_MS) {
+    userLimit.count = 0;
+    userLimit.firstRequest = now;
+  }
+  
+  if (userLimit.count >= MAX_REQUESTS_PER_DAY) {
+    saveRateLimits(limits);
+    const resetTime = new Date(userLimit.firstRequest + RATE_LIMIT_WINDOW_MS);
+    return { 
+      allowed: false, 
+      remaining: 0,
+      resetAt: resetTime.toISOString()
+    };
+  }
+  
+  userLimit.count++;
+  saveRateLimits(limits);
+  
+  return { 
+    allowed: true, 
+    remaining: MAX_REQUESTS_PER_DAY - userLimit.count,
+    resetAt: new Date(userLimit.firstRequest + RATE_LIMIT_WINDOW_MS).toISOString()
+  };
+}
+
+function getClientIP(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 
+         req.headers['x-real-ip'] || 
+         req.connection?.remoteAddress || 
+         req.ip || 
+         'unknown';
+}
 
 // Configurazione Anthropic
 const anthropic = new Anthropic({
@@ -552,6 +651,44 @@ const uploadMultipleAnalisi = multer({
 app.post('/api/analizza', uploadMultipleAnalisi, async (req, res) => {
   try {
     console.log('📥 Richiesta ANALISI FINALE ricevuta');
+    
+    // ============================================
+    // VERIFICA RATE LIMIT
+    // ============================================
+    const clientIP = getClientIP(req);
+    const rateCheck = checkRateLimit(clientIP);
+    
+    if (!rateCheck.allowed) {
+      console.log('🚫 Rate limit superato per IP:', clientIP);
+      return res.status(429).json({ 
+        error: 'Limite giornaliero raggiunto', 
+        message: 'Hai raggiunto il limite di 10 analisi nelle ultime 24 ore. Riprova domani.',
+        resetAt: rateCheck.resetAt
+      });
+    }
+    console.log(`✅ Rate limit OK - Analisi rimanenti oggi: ${rateCheck.remaining}`);
+    
+    // ============================================
+    // VERIFICA reCAPTCHA v3
+    // ============================================
+    const recaptchaToken = req.body.recaptchaToken;
+    if (!recaptchaToken) {
+      console.log('⚠️ Token reCAPTCHA mancante');
+      return res.status(400).json({ 
+        error: 'Verifica di sicurezza fallita', 
+        message: 'Token reCAPTCHA mancante. Ricarica la pagina e riprova.'
+      });
+    }
+    
+    const isHuman = await verifyRecaptcha(recaptchaToken);
+    if (!isHuman) {
+      console.log('🤖 Rilevato possibile bot - IP:', clientIP);
+      return res.status(403).json({ 
+        error: 'Verifica di sicurezza fallita', 
+        message: 'Non è stato possibile verificare che sei un utente umano. Riprova.'
+      });
+    }
+    console.log('✅ reCAPTCHA verificato - Utente umano confermato');
     
     const isMultiple = req.body.isMultiple === 'true';
     let files = [];
