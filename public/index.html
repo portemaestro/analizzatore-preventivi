@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analizzatore Preventivi - GuidaPorteBlindate.it</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeuN0IsAAAAAAdpUkhBmnSeriqZ4jjxO8Sx4WZI"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 20px; }
@@ -997,6 +999,22 @@
             document.getElementById('wizardContainer').style.display = 'none';
             document.getElementById('navButtons').style.display = 'none';
             document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('loadingTitle').textContent = 'Verifica in corso...';
+            document.getElementById('loadingText').textContent = 'Verifica di sicurezza...';
+            
+            // Ottieni token reCAPTCHA
+            let recaptchaToken;
+            try {
+                recaptchaToken = await grecaptcha.execute('6LeuN0IsAAAAAAdpUkhBmnSeriqZ4jjxO8Sx4WZI', { action: 'analyze' });
+            } catch (recaptchaError) {
+                console.error('Errore reCAPTCHA:', recaptchaError);
+                alert('Errore nella verifica di sicurezza. Ricarica la pagina e riprova.');
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('wizardContainer').style.display = 'block';
+                document.getElementById('navButtons').style.display = 'flex';
+                return;
+            }
+            
             document.getElementById('loadingTitle').textContent = 'Analisi in corso...';
             document.getElementById('loadingText').textContent = `Analisi di ${state.numPreventivi} preventiv${state.numPreventivi > 1 ? 'i' : 'o'}...`;
             
@@ -1008,6 +1026,9 @@
                 
                 const quote = state.quotes[i];
                 const formData = new FormData();
+                
+                // Aggiungi token reCAPTCHA
+                formData.append('recaptchaToken', recaptchaToken);
                 
                 // Se sono immagini multiple, inviale separate
                 if (quote.isMultipleImages && quote.files) {
@@ -1033,6 +1054,26 @@
                 try {
                     const response = await fetch('/api/analizza', { method: 'POST', body: formData });
                     const result = await response.json();
+                    
+                    // Gestisci errori specifici
+                    if (response.status === 429) {
+                        // Rate limit superato
+                        document.getElementById('loadingState').style.display = 'none';
+                        alert(`⚠️ ${result.message || 'Limite giornaliero raggiunto. Riprova domani.'}`);
+                        document.getElementById('wizardContainer').style.display = 'block';
+                        document.getElementById('navButtons').style.display = 'flex';
+                        return;
+                    }
+                    
+                    if (response.status === 403) {
+                        // reCAPTCHA fallito
+                        document.getElementById('loadingState').style.display = 'none';
+                        alert(`🔐 ${result.message || 'Verifica di sicurezza fallita. Riprova.'}`);
+                        document.getElementById('wizardContainer').style.display = 'block';
+                        document.getElementById('navButtons').style.display = 'flex';
+                        return;
+                    }
+                    
                     results.push({ ...result, verified: quote.verified, originalName: quote.originalName });
                     if (result.usage) {
                         totalTokens.input += result.usage.input_tokens;
