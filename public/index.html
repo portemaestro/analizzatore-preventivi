@@ -307,8 +307,8 @@
                             <div class="extracted-value" id="extractedLock">In lettura...</div>
                             <select id="inputLock">
                                 <option value="">-- Seleziona se diversa --</option>
-                                <option value="ingranaggi">Ingranaggi (con trappola)</option>
-                                <option value="scatto">A scatto / Frizionata</option>
+                                <option value="ingranaggi">Ingranaggi con trappola</option>
+                                <option value="scatto">A scatto o a leva</option>
                             </select>
                         </div>
                         
@@ -816,7 +816,7 @@
                 model: document.getElementById('inputModel').value.trim() || ext.model || null,
                 security_class: document.getElementById('inputClass').value || ext.security_class || null,
                 lock_type: document.getElementById('inputLock').value ? 
-                    (document.getElementById('inputLock').value === 'ingranaggi' ? 'Ingranaggi con trappola' : 'A scatto / Frizionata') 
+                    (document.getElementById('inputLock').value === 'ingranaggi' ? 'Ingranaggi con trappola' : 'A scatto o a leva') 
                     : ext.lock_type || null,
                 cylinder: document.getElementById('inputCylinder').value.trim() || ext.cylinder || null,
                 defender: document.getElementById('inputDefender').value.trim() || ext.defender || null,
