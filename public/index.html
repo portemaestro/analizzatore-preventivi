@@ -1207,13 +1207,55 @@
         // Init
         showStep(1);
     </script>
-    function sendHeight() {
-    // Usiamo solo scrollHeight del body per misurare il contenuto reale
-    // Evitiamo offsetHeight o clientHeight di 'html' perché includono l'altezza dell'iframe stesso
-    var height = document.body.scrollHeight;
+    <script>
+    // Configura PDF.js (necessario per il tuo codice precedente)
+    if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
 
-    // Invia il messaggio
-    window.parent.postMessage({ 'height': height }, "*");
-}
+    // --- FUNZIONE DI RIDIMENSIONAMENTO CORRETTA ---
+    function sendHeight() {
+        // TRUCCO ANTI-LOOP:
+        // Invece di misurare il body (che si allunga), misuriamo il ".card" o ".container"
+        // che contiene effettivamente il tuo wizard.
+        var container = document.querySelector('.container');
+        
+        if (container) {
+            // Calcoliamo l'altezza del container + il padding del body (20px sopra + 20px sotto)
+            // Aggiungiamo 20px extra di sicurezza
+            var realHeight = container.offsetHeight + 60;
+            
+            // Inviamo questa altezza precisa
+            window.parent.postMessage({ 'height': realHeight }, "*");
+        }
+    }
+
+    // Invia l'altezza al caricamento
+    window.addEventListener('load', sendHeight);
+
+    // Invia l'altezza se la finestra viene ridimensionata
+    window.addEventListener('resize', sendHeight);
+
+    // MutationObserver: osserva se il contenuto cambia (es. quando clicchi "Avanti")
+    var observer = new MutationObserver(function(mutations) {
+        sendHeight();
+    });
+    
+    // Osserva i cambiamenti nel container
+    var containerToObserve = document.querySelector('.container');
+    if (containerToObserve) {
+        observer.observe(containerToObserve, { 
+            attributes: true, 
+            childList: true, 
+            subtree: true 
+        });
+    }
+
+    // --- CODICE DEL WIZARD (Inizializzazione) ---
+    // Assicuriamoci che lo step 1 sia attivo all'avvio
+    if (typeof showStep === 'function') {
+        showStep(1);
+    }
+</script>
 </body>
 </html>
