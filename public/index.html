@@ -1207,5 +1207,42 @@
         // Init
         showStep(1);
     </script>
+    <script>
+    function sendHeight() {
+        // Calcola l'altezza totale del documento
+        // Usiamo Math.max per essere sicuri di prendere l'altezza completa su tutti i browser
+        var body = document.body;
+        var html = document.documentElement;
+
+        var height = Math.max( 
+            body.scrollHeight, body.offsetHeight, 
+            html.clientHeight, html.scrollHeight, html.offsetHeight 
+        );
+
+        // Invia il messaggio al sito genitore (guidaporteblindate.it)
+        // L'asterisco '*' permette l'invio, ma per sicurezza potresti mettere "https://www.guidaporteblindate.it"
+        window.parent.postMessage({ 'height': height }, "*");
+    }
+
+    // 1. Invia l'altezza appena la pagina è caricata
+    window.addEventListener('load', sendHeight);
+
+    // 2. Invia l'altezza se la finestra viene ridimensionata dall'utente
+    window.addEventListener('resize', sendHeight);
+
+    // 3. (FONDAMENTALE PER IL TUO WIZARD)
+    // Osserva se il DOM cambia (es. clicchi "Avanti" e appare nuovo testo)
+    var observer = new MutationObserver(function(mutations) {
+        sendHeight();
+    });
+    
+    // Configura l'osservatore per guardare tutto il corpo della pagina
+    observer.observe(document.body, { 
+        attributes: true, 
+        childList: true, 
+        subtree: true, 
+        characterData: true
+    });
+</script>
 </body>
 </html>
